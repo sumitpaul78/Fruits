@@ -1,0 +1,108 @@
+{
+    "mainproducts": [
+      {
+        "id": 1,
+        "title": "Pumpkins Fairytale",
+        "description": "All products are carefully selected to ensure food safety.",
+        "category": "Vegetables",
+        "price": 95.00,
+        "discountprice": 85.00,
+        "quantity": 1,
+        "brand": "Essence",
+        "sku": "RCH45Q1A",
+        "weight": 2,
+        "proimg": "../../images/products/p-19.jpg"
+      },
+      {
+        "id": 2,
+        "title": "Passover Cauliflower",
+        "description": "All products are carefully selected to ensure food safety.",
+        "category": "Vegetables",
+        "price": 95.00,
+        "discountprice": 85.00,
+        "quantity": 1,
+        "brand": "Essence",
+        "sku": "RCH45Q1A",
+        "weight": 2,
+        "proimg": "../../images/products/p-03.jpg"
+      },
+      {
+        "id": 3,
+        "title": "Hot Chili Peppers",
+        "description": "All products are carefully selected to ensure food safety.",
+        "category": "Vegetables",
+        "price": 95.00,
+        "discountprice": 85.00,
+        "quantity": 1,
+        "brand": "Essence",
+        "sku": "RCH45Q1A",
+        "weight": 2,
+        "proimg": "../../images/products/p-02.jpg"
+      },
+      {
+        "id": 4,
+        "title": "Cherry Tomato Seeds",
+        "description": "All products are carefully selected to ensure food safety.",
+        "category": "Vegetables",
+        "price": 95.00,
+        "discountprice": 85.00,
+        "quantity": 1,
+        "brand": "Essence",
+        "sku": "RCH45Q1A",
+        "weight": 2,
+        "proimg": "./../images/products/p-22.jpg"
+      },
+      {
+        "id": 5,
+        "title": "National Fresh Fruit",
+        "description": "All products are carefully selected to ensure food safety.",
+        "category": "Vegetables",
+        "price": 95.00,
+        "discountprice": 85.00,
+        "quantity": 1,
+        "brand": "Essence",
+        "sku": "RCH45Q1A",
+        "weight": 2,
+        "proimg": "/../images/products/p-20.jpg"
+      },
+      {
+        "id": 6,
+        "title": "Organic Hass Avocado",
+        "description": "All products are carefully selected to ensure food safety.",
+        "category": "Vegetables",
+        "price": 95.00,
+        "discountprice": 85.00,
+        "quantity": 1,
+        "brand": "Essence",
+        "sku": "RCH45Q1A",
+        "weight": 2,
+        "proimg": "/../images/products/p-05.jpg"
+      },
+      {
+        "id": 7,
+        "title": "Packham's Pears",
+        "description": "All products are carefully selected to ensure food safety.",
+        "category": "Vegetables",
+        "price": 95.00,
+        "discountprice": 85.00,
+        "quantity": 1,
+        "brand": "Essence",
+        "sku": "RCH45Q1A",
+        "weight": 2,
+        "proimg": "/../images/products/p-06.jpg"
+      },
+      {
+        "id": 8,
+        "title": "National Fresh Fruit",
+        "description": "All products are carefully selected to ensure food safety.",
+        "category": "Vegetables",
+        "price": 95.00,
+        "discountprice": 85.00,
+        "quantity": 1,
+        "brand": "Essence",
+        "sku": "RCH45Q1A",
+        "weight": 2,
+        "proimg": "/../images/products/p-20.jpg"
+      }
+    ]
+}
