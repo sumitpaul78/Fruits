@@ -1,20 +1,20 @@
-import React, { Component, useEffect } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "../src/assets/css/bootstrap.min.css";
-import "../src/assets/css/animate.min.css";
-import "../src/assets/css/font-awesome.min.css";
-import "../src/assets/css/nice-select.css";
-import "../src/assets/css/slick.min.css";
-import "../src/assets/css/style.css";
-import "../src/assets/css/main-color.css";
-import Header from "./Component/Header";
-import Footer from "./Component/Footer";
+import React, { useEffect } from "react";
+
 import HomePage from "./Pages/Home/mainpage";
 import SingleProduct from "./Pages/singleProduct";
 import './App.css'; 
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router-dom";
+import toast, { Toaster } from 'react-hot-toast';
 import CartPage from "./Pages/cart";
 import Checkout from "./Pages/checkout";
+import Login from "./Pages/login";
+import SignIn from "./Pages/signIn";
+import DashboradLayout from "./Pages/Dashoboard-Ui/DashboradLayout";
+import Nopage from "./Pages/Nopage";
+import MainLayout from "./Component/Layout/MainLayout";
+import ProductAdd from "./Pages/Dashoboard-Ui/pages/ProductAdd";
+import Pagecontent from "./Pages/Dashoboard-Ui/pages/Productlist";
+import DashboardHome from "./Pages/Dashoboard-Ui/pages/DashboardHome";
 
 
 
@@ -32,16 +32,30 @@ function App() {
   
   return (
     <BrowserRouter>
-        <Header />
+        {/* <Header /> */}
+        {/* <MainLayout /> */}
         <Routes>
-          <Route path="/" exact="true" element={<HomePage />} /> 
-          <Route path="/cart" exact="true" element={<CartPage />} />
-          <Route path="/checkout" exact="true" element={<Checkout />} />
-          <Route path="/:productID" exact="true" element={<SingleProduct />} />
+          <Route path="/" element={<MainLayout />} > 
+          <Route index element={<HomePage />} />
+          <Route path="/cart"  element={<CartPage />} />
+          <Route path="/checkout"  element={<Checkout />} />
+          <Route path="/login"  element={<Login />} />
+          <Route path="/signin"  element={<SignIn />} />
+          <Route path="/:id"  element={<SingleProduct />} />
+          <Route path="/nopage" element={<Nopage />} />
+          <Route path="*" element={<Navigate to="/nopage" />} />
+          </Route>
+      
+        <Route path="/" element={<DashboradLayout />}>
+          <Route path="/dashboard" element={<DashboardHome />} />
+          <Route path="/addproduct" element={<ProductAdd />} />
+          <Route path="/productlist" element={<Pagecontent />} />
+        
+        </Route>
         </Routes>
-        <Footer />
+        <Toaster />
+       
     </BrowserRouter>
-    
 
   );
 }

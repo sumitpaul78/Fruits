@@ -1,5 +1,14 @@
 import React from "react";
-// import { CartContext } from "../../features/ContextProvider";
+
+import "../../assets/css/bootstrap.min.css";
+import "../../assets/css/animate.min.css";
+import "../../assets/css/font-awesome.min.css";
+import "../../assets/css/nice-select.css";
+import "../../assets/css/slick.min.css";
+import "../../assets/css/style.css";
+import "../../assets/css/main-color.css";
+
+
 import { Link } from "react-router-dom";
 import Logo from "../../assets/images/organic-3.png";
 import Sidenav from "./Sidenav";
@@ -54,7 +63,7 @@ const Header =()=>{
                                     <option value="jp">Japan (JPY)</option>
                                 </select>
                             </li>
-                            <li><a href="login.html" className="login-link"><i className="biolife-icon icon-login"></i>Login/Register</a></li>
+                            <li><Link to={'/login'} className="login-link"><i className="biolife-icon icon-login"></i>Login/Register</Link></li>
                         </ul>
                     </div>
                 </div>

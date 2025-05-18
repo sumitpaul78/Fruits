@@ -1,5 +1,6 @@
 import Logo from "../../assets/images/organic-3.png";
 
+
 const Footer = () =>{
     return(
         <>

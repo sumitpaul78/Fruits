@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import { addItemToCart, addToCart, decreaseItemQuantity, getCartTotal, increaseItemQuantity } from '../features/cartSlice';
 
-const SingleProduct = () => {
-    const {productID} = useParams();
 
+const SingleProduct = () => {
+    const {id } = useParams();
+    const [quantity, setQuantity] = useState(1); 
     const items = useSelector((state) => state.allCart.items);
 
-    const singleItem = items.find((item) => item.id === parseInt(productID));
+    const singleItem = items.find((item) => item.id === parseInt(id));
     
      const {cart,totalQuantity,totalPrice} = useSelector((state) => state.allCart);
      const dispatch = useDispatch();
@@ -16,12 +17,14 @@ const SingleProduct = () => {
             dispatch(getCartTotal());
         }, [cart, dispatch]);
         
-        const [quantity, setQuantity] = useState(1); 
+        
 
         const handleIncrease = () => {
             setQuantity(prevQuantity => prevQuantity + 1);
         };
-   
+        if (!singleItem) {
+        return <Navigate to="/nopage" />;
+        }
 
         const handleDecrease = () => {
             setQuantity(prevQuantity => (prevQuantity > 1 ? prevQuantity - 1 : 1)); 
@@ -29,8 +32,8 @@ const SingleProduct = () => {
 
         const handleAddToCart = () => {
             const updatedProduct = { ...singleItem, quantity};
-           console.log(singleItem);
-            console.log(quantity);
+        //    console.log(singleItem);
+        //     console.log(quantity);
             dispatch(addItemToCart(updatedProduct));
             // alert('Product added to cart');
           };

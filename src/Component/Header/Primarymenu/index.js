@@ -245,7 +245,8 @@ const Primarymenu =()=>{
                                         </div>
                                     </div>
                                 </li>
-                                <li className="menu-item"><Link to={'contact'}>Contact</Link></li>
+                                {/* <li className="menu-item"><Link to={'contact'}>Contact</Link></li>
+                                */}
                             </ul>
                             </div>        
         </>
