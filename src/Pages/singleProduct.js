@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, Navigate, useParams } from 'react-router-dom';
+import { fireDB } from "../firebase/FirebaseConfig";
 import { addItemToCart, addToCart, decreaseItemQuantity, getCartTotal, increaseItemQuantity } from '../features/cartSlice';
+import CurrencyFormat from '../global-component/CurrencyFormat';
+import toast from 'react-hot-toast';
 
 
 const SingleProduct = () => {
-    const {id } = useParams();
+    const {product_id } = useParams();
     const [quantity, setQuantity] = useState(1); 
-    const items = useSelector((state) => state.allCart.items);
+    // const items = useSelector((state) => state.allCart.items);
+    const products = useSelector(state => state.products.items);
 
-    const singleItem = items.find((item) => item.id === parseInt(id));
+    const singleItem = products.find(p => p.product_id === Number(product_id));
     
      const {cart,totalQuantity,totalPrice} = useSelector((state) => state.allCart);
      const dispatch = useDispatch();
@@ -35,7 +39,8 @@ const SingleProduct = () => {
         //    console.log(singleItem);
         //     console.log(quantity);
             dispatch(addItemToCart(updatedProduct));
-            // alert('Product added to cart');
+
+            toast.success('Product added to cart');
           };
     
   return (
@@ -53,41 +58,42 @@ const SingleProduct = () => {
                 <ul>
                     <li className="nav-item"><Link to={'/'} className="permal-link">Home</Link></li>
                     <li className="nav-item"><Link href="#" className="permal-link">Natural Organic</Link></li>
-                    <li className="nav-item"><span className="current-page">{singleItem.title}</span></li>
+                    <li className="nav-item"><span className="current-page">{singleItem.product_name}</span></li>
                 </ul>
             </nav>
 
                 <div className="sumary-product single-layout">
                     <div className="media">
                         <ul className="biolife-carousel slider-for" data-slick='{"arrows":false,"dots":false,"slidesMargin":30,"slidesToShow":1,"slidesToScroll":1,"fade":true,"asNavFor":".slider-nav"}'>
-                            <li><img src={singleItem.proimg} alt="" width="500" height="500" /></li>
-                            <li><img src={singleItem.proimg} alt="" width="500" height="500" /></li>
-                            <li><img src={singleItem.proimg} alt="" width="500" height="500" /></li>
-                            <li><img src={singleItem.proimg} alt="" width="500" height="500" /></li>
-                            <li><img src={singleItem.proimg} alt="" width="500" height="500" /></li>
+                            <li><img src={singleItem.imageURL} alt="" width="500" height="500" /></li>
+                            <li><img src={singleItem.imageURL} alt="" width="500" height="500" /></li>
+                            <li><img src={singleItem.imageURL} alt="" width="500" height="500" /></li>
+                            <li><img src={singleItem.imageURL} alt="" width="500" height="500" /></li>
+                            <li><img src={singleItem.imageURL} alt="" width="500" height="500" /></li>
                            
                         </ul>
                         <ul className="biolife-carousel slider-nav" data-slick='{"arrows":false,"dots":false,"centerMode":false,"focusOnSelect":true,"slidesMargin":10,"slidesToShow":4,"slidesToScroll":1,"asNavFor":".slider-for"}'>
-                            <li><img src={singleItem.proimg} alt="" width="88" height="88" /></li>
-                            <li><img src={singleItem.proimg} alt="" width="500" height="500" /></li>
-                            <li><img src={singleItem.proimg} alt="" width="500" height="500" /></li>
-                            <li><img src={singleItem.proimg} alt="" width="500" height="500" /></li>
-                            <li><img src={singleItem.proimg} alt="" width="500" height="500" /></li>
+                            <li><img src={singleItem.imageURL} alt="" width="88" height="88" /></li>
+                            <li><img src={singleItem.imageURL} alt="" width="500" height="500" /></li>
+                            <li><img src={singleItem.imageURL} alt="" width="500" height="500" /></li>
+                            <li><img src={singleItem.imageURL} alt="" width="500" height="500" /></li>
+                            <li><img src={singleItem.imageURL} alt="" width="500" height="500" /></li>
                         </ul>
                     </div>
                     <div className="product-attribute">
-                        <h3 className="title">{singleItem.title}</h3>
+                        <h3 className="title">{singleItem.product_name}</h3>
                         <div className="rating">
                             <p className="star-rating"><span className="width-80percent"></span></p>
                             <span className="review-count">(04 Reviews)</span>
                             <span className="qa-text">Q&A</span>
                             <b className="category">By: {singleItem.category}</b>
                         </div>
-                        <span className="sku">Sku: {singleItem.sku}</span>
-                        <p className="excerpt">{singleItem.description}</p>
+                        <span className="sku">Sku: {singleItem.product_type}</span>
                         <div className="price">
-                            <ins><span className="price-amount"><span className="currencySymbol">£</span>{singleItem.discountprice.toFixed(2)}</span></ins>
-                            <del><span className="price-amount"><span className="currencySymbol">£</span>{singleItem.price.toFixed(2)}</span></del>
+                            <ins><span className="price-amount"><span className="currencySymbol"></span>
+                            <CurrencyFormat value={singleItem.product_price} />
+                            </span></ins>
+                            <del><span className="price-amount"><span className="currencySymbol"></span>  <CurrencyFormat value={singleItem.product_price} /></span></del>
                         </div>
                        
                         <div className="shipping-info">
@@ -107,7 +113,10 @@ const SingleProduct = () => {
                         </div>
                         <div className="total-price-contain">
                             <span className="title">Total Price:</span>
-                            <p className="price">£{(quantity * singleItem.discountprice).toFixed(2)}</p>
+                            <p className="price">
+                                  <CurrencyFormat value={quantity * parseFloat(singleItem.product_price.replace(/[^0-9.-]+/g, ""))} />
+                                  
+                                  </p>
                             
                         </div>
                         <div className="buttons">
@@ -139,16 +148,17 @@ const SingleProduct = () => {
                     </div>
                     <div className="tab-content">
                         <div id="tab_1st" className="tab-contain desc-tab active">
-                            <p className="desc">Quisque quis ipsum venenatis, fermentum ante volutpat, ornare enim. Phasellus molestie risus non aliquet cursus. Integer vestibulum mi lorem, id hendrerit ante lobortis non. Nunc ante ante, lobortis non pretium non, vulputate vel nisi. Maecenas dolor elit, fringilla nec turpis ac, auctor vulputate nulla. Phasellus sed laoreet velit.
-                                Proin fringilla urna vel mattis euismod. Etiam sodales, massa non tincidunt iaculis, mauris libero scelerisque justo, ut rutrum lectus urna sit amet quam. Nulla maximus vestibulum mi vitae accumsan. Donec sit amet ligula et enim semper viverra a in arcu. Vestibulum enim ligula, varius sed enim vitae, posuere molestie velit. Morbi risus orci, congue in nulla at, sodales fermentum magna.</p>
-                            <div className="desc-expand">
+                            <p className="desc">
+                                {singleItem.product_description}
+                            </p>
+                            {/* <div className="desc-expand">
                                 <span className="title">Organic Fresh Fruit</span>
                                 <ul className="list">
                                     <li>100% real fruit ingredients</li>
                                     <li>100 fresh fruit bags individually wrapped</li>
                                     <li>Blending Eastern & Western traditions, naturally</li>
                                 </ul>
-                            </div>
+                            </div> */}
                         </div>
                         <div id="tab_2nd" className="tab-contain addtional-info-tab">
                             <table className="tbl_attributes">

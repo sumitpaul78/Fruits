@@ -1,10 +1,20 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { getCartTotal } from "../features/cartSlice";
+import { getCartTotal, resetCart } from "../features/cartSlice";
 import { useForm } from "react-hook-form";
+import { fireDB } from '../firebase/FirebaseConfig';
+import { query, where, getDocs, updateDoc, doc, collection, addDoc } from 'firebase/firestore';
+import CurrencyFormat from "../global-component/CurrencyFormat";
+import { useNavigate } from "react-router-dom";
+import { parsePrice } from '../global-component/CurrencyFormat';
+
 
 const Checkout = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+
   const { cart, totalQuantity, totalPrice } = useSelector(
     (state) => state.allCart
   );
@@ -21,25 +31,63 @@ const Checkout = () => {
         lastName:"",
         email:"",
         address:"",
-        adddressopt:{
-            country:"",
-            state:""
-        },
-        cc_name:"",
-        cc_number:"",
-        cc_exp:"",
-        cc_cvv:""
+        phn:"",
+        country:"",
+        state:"",       
+        zip:"",
         
     }
   })
   const { register, 
     handleSubmit,
     watch,
-    formState: { errors } } = form;
+    formState: { errors },reset } = form;
 
-     const onSubmit = (data) =>{
-        console.log(data);
-     }
+    // Order Product
+     const onSubmit = async(data) =>{
+        setIsLoading(true);
+        const productsRef = collection(fireDB, "order_details");
+        const querySnapshot = await getDocs(productsRef);
+        
+        let maxId = 0;
+        querySnapshot.forEach((docSnap) => {
+        const product = docSnap.data();
+        if (typeof product.orderID === "number" && product.orderID > maxId) {
+        maxId = product.orderID;
+         }
+        });
+        
+        const newOrderId = maxId + 1;
+      try {
+    await addDoc(productsRef, {
+      orderID: newOrderId,
+      orderStatus: data.orderStatus,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      address: data.address,
+      phn: data.phn,
+      country: data.country,
+      state: data.state,
+      zip: data.zip,     
+      cart,
+      totalPrice,
+      totalQuantity,
+      createdAt: new Date().toISOString(),
+    });
+
+    toast.success("Product added successfully!");
+    dispatch(resetCart());
+    reset();
+    navigate(`/thankyou/${newOrderId}`);
+  } catch (error) {
+    console.error("Error:", error);
+    toast.alert("Failed to add product. See console for details.");
+  } finally {
+    setIsLoading(false);
+  }
+     };
+    
 
   return (
     <>
@@ -69,7 +117,7 @@ const Checkout = () => {
               <div className="col-lg-7 col-md-7 col-sm-6 col-xs-12">
                 <div className="checkout-progress-wrap">
                   <ul className="steps">
-                    <li className="step 1st">
+                    {/* <li className="step 1st">
                       <div className="checkout-act active">
                         <h3 className="title-box">
                           <span className="number">1</span>Customer
@@ -122,15 +170,27 @@ const Checkout = () => {
                           </div>
                         </div>
                       </div>
-                    </li>
+                    </li> */}
                     <li className="step 2nd">
                       <div className="checkout-act">
                         <h3 className="title-box">
-                          <span className="number">2</span>User Details
+                          <span className="number">1</span>Shipping Details
                         </h3>
                       </div>
                       <form className="needs-validation" onSubmit={handleSubmit(onSubmit)}>
                         <div className="row mt-3">
+                            <div className="col-md-6 mb-3 d-none">
+                            <label >Order Status</label>
+                            <input
+                              type="hidden"
+                              className="form-control"
+                              placeholder=""
+                              value="open"  {...register("orderStatus")}
+                            />
+                          <p className="text-danger"> {errors?.firstName?.message}</p>
+                                   
+                          </div>
+
                           <div className="col-md-6 mb-3">
                             <label >First name</label>
                             <input
@@ -140,7 +200,7 @@ const Checkout = () => {
                               {...register("firstName",
                                 {
                                     required:"Please Enter first name",
-                                    minLength:{value:3, message:"Please enter atleast 3 word"}
+                                    minLength:{value:3, message:"Please enter atleast 3 letter"}
                                 }
                               )}
                               
@@ -187,12 +247,19 @@ const Checkout = () => {
                         <div className="mb-3">
                           <label for="phn">Phone Number</label>
                           <input
-                            type="text"
+                            type="number"
                             className="form-control"
-                            id="phone"
+                            id="phn"
                             placeholder="Enter Your Phone"
-                            {...register("phn")}
+                           
+                            {...register("phn",
+                              {
+                                required:"Please Enter Your contact number",
+                                maxLength:{value:10, message:"Phone no should be 10 digit"}
+                              }
+                            )}
                           />
+                           <p className="text-danger"> {errors?.phn?.message}</p>
                         </div>
 
                         <div className="mb-3">
@@ -211,81 +278,53 @@ const Checkout = () => {
                            <p className="text-danger"> {errors?.address?.message}</p>
                         </div>
 
-                        <div className="mb-3">
-                          <label for="address2">
-                            Address 2
-                          </label>
-                          <div className="d-flex justify-content-around">
-                            <div>
-                           <input
-                            type="text"
-                            className="form-control w-49"
-                            placeholder="Enter Country Name"
-                            {...register("adddressopt.country",
+                        
+
+                        <div className="row">
+                          <div className="col-md-5 mb-3">
+                            <label for="state">Country</label>
+                            <select class="form-select" aria-label="" 
+                              {...register("country",
                               {
                                 required:"Please Enter Your country"
                               }
-                            )}
-                          />
-                           <span className="text-danger"> {errors?.adddressopt?.country?.message}</span>
-                           </div>
-                           <div>
-                          <input
-                            type="text"
-                            className="form-control  w-49"
-                            placeholder="Enter State Name"
-                            {...register("adddressopt.state",
+                            )}>
+                              <option selected>Select one</option>
+                              <option value="US">United State</option>
+                              <option value="India">India</option>
+                            </select>
+                             <span className="text-danger"> {errors?.country?.message}</span>
+                          </div>
+                          <div className="col-md-4 mb-3">
+                             <label for="state">State</label>
+                            <select class="form-select" aria-label=""
+                               {...register("state",
                               {
                                 required:"Please Enter Your state"
                               }
-                            )}
-                          />
-                           <span className="text-danger"> {errors?.adddressopt?.state?.message}</span>
-                           </div>
-                          </div>
-                        </div>
-
-                        {/* <div className="row">
-                          <div className="col-md-5 mb-3">
-                            <label for="country">Country</label>
-                            <select
-                              className="w-100"
-                              id=""
-                              required
-                            >
-                              <option>Choose...</option>
-                              <option>United States</option>
+                            )}>
+                              <option selected>Select one</option>
+                              <option value="WB">West Begnal</option>
+                              <option value="Dl">Delhi</option>
                             </select>
-                            <div className="invalid-feedback">
-                              Please select a valid country.
-                            </div>
-                          </div>
-                          <div className="col-md-4 mb-3">
-                            <label for="state">State</label>
-                            <select
-                              className="d-block w-100"
-                              id="" >
-                              <option>Choose...</option>
-                              <option>California</option>
-                            </select>
-                            <div className="invalid-feedback">
-                              Please provide a valid state.
-                            </div>
+                             <span className="text-danger"> {errors?.state?.message}</span>
                           </div>
                           <div className="col-md-3 mb-3">
                             <label for="zip">Zip</label>
                             <input
-                              type="text"
+                              type="number"
                               className="form-control"
                               id="zip"
-                              placeholder=""
-                              required
+                              placeholder="Enter Your Zip"
+                              {...register("zip",
+                              {
+                                required:"Please Enter Your zip"
+                              }
+                            )}
                             />
-                            <div className="invalid-feedback">
-                              Zip code required.
-                            </div>
+                           <span className="text-danger"> {errors?.zip?.message}</span>
                           </div>
-                        </div> */}
+                        </div>
                         <hr className="mb-4" />
                         <div className="custom-control custom-checkbox">
                           <input
@@ -315,10 +354,10 @@ const Checkout = () => {
                         </div>
                         <hr className="mb-4" />
 
-                        <h4 className="mb-3">Payment</h4>
+                        <h4 className="mb-3">Payment Mode</h4>
 
                         <div className="d-block my-3">
-                          <div className="custom-control custom-radio">
+                          {/* <div className="custom-control custom-radio">
                             <input
                               id="credit"
                               name="paymentMethod"
@@ -352,7 +391,7 @@ const Checkout = () => {
                             <label className="custom-control-label" for="debit">
                               Debit card
                             </label>
-                          </div>
+                          </div> */}
                           <div className="custom-control custom-radio">
                             <input
                               id="paypal"
@@ -361,20 +400,20 @@ const Checkout = () => {
                               className="custom-control-input"
                               {...register("paymenttype",
                                 {
-                                  required:"Please select Any One"
+                                  required:"Please select Payment mode"
                                 }
                               )}                              
                             />
                             <label
                               className="custom-control-label"
-                              for="paypal"
-                            >
-                              Paypal
+                              for="cash"
+                            > 
+                              Cash On Delivery
                             </label>
                             <div className="text-danger">{errors?.paymenttype?.message}</div>
                           </div>
                         </div>
-                        <div className="row">
+                        {/* <div className="row">
                           <div className="col-md-6 mb-3">
                             <label for="cc_name">Name on card</label>
                             <input
@@ -444,13 +483,13 @@ const Checkout = () => {
                             />
                               <div className="text-danger">{errors?.cc_cvv?.message}</div>
                           </div>
-                        </div>
+                        </div> */}
                         <hr className="mb-4" />
                         <button
                           className="btn btn-danger"
-                          type="submit"
+                          type="submit"  disabled={isLoading}
                         >
-                          Continue to checkout
+                          {isLoading ? "Processing..." : "Continue to checkout"}
                         </button>
                       </form>
                     </li>
@@ -481,14 +520,14 @@ const Checkout = () => {
                     <span className="number">{totalQuantity} items</span>
                     <ul className="cart-list">
                       {cart.map((item) => (
-                        <span key={item.id}>
+                        <span key={item.product_id}>
                           <li className="cart-elem">
                             <div className="cart-item">
                               <div className="product-thumb">
                                 <a className="prd-thumb" href="#">
                                   <figure>
                                     <img
-                                      src={item.proimg}
+                                      src={item.imageURL}
                                       width="113"
                                       height="113"
                                       alt="shop-cart"
@@ -501,22 +540,20 @@ const Checkout = () => {
                                   {item.quantity}X
                                 </span>
                                 <a href="#" className="pr-name">
-                                  {item.title}
+                                  {item.product_name}
                                 </a>
                               </div>
                               <div className="price price-contain">
                                 <ins>
                                   <span className="price-amount">
-                                    <span className="currencySymbol">£</span>
-                                    {(
-                                      item.quantity * item.discountprice
-                                    ).toFixed(2)}
+                                    <span className="currencySymbol"></span>
+                                     <CurrencyFormat value={item.quantity *  parsePrice(item.discount_price)} />
                                   </span>
                                 </ins>
                                 <del>
                                   <span className="price-amount">
-                                    <span className="currencySymbol">£</span>
-                                    {(item.quantity * item.price).toFixed(2)}
+                                    <span className="currencySymbol"></span>
+                                    <CurrencyFormat value={item.quantity *  parsePrice(item.product_price)} />
                                   </span>
                                 </del>
                               </div>
@@ -530,20 +567,20 @@ const Checkout = () => {
                         <div className="subtotal-line">
                           <b className="stt-name">Subtotal</b>
                           <span className="stt-price">
-                            £{totalPrice.toFixed(2)}
+                              <CurrencyFormat value={totalPrice} />
                           </span>
                         </div>
                       </li>
                       <li>
                         <div className="subtotal-line">
                           <b className="stt-name">Shipping</b>
-                          <span className="stt-price">£0.00</span>
+                          <span className="stt-price">$0.00</span>
                         </div>
                       </li>
                       <li>
                         <div className="subtotal-line">
                           <b className="stt-name">Tax</b>
-                          <span className="stt-price">£0.00</span>
+                          <span className="stt-price">$0.00</span>
                         </div>
                       </li>
 
@@ -551,7 +588,7 @@ const Checkout = () => {
                         <div className="subtotal-line">
                           <b className="stt-name">total:</b>
                           <span className="stt-price">
-                            £{totalPrice.toFixed(2)}
+                           <CurrencyFormat value={totalPrice} />
                           </span>
                         </div>
                       </li>

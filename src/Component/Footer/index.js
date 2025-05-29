@@ -1,4 +1,4 @@
-import Logo from "../../assets/images/organic-3.png";
+import Logo from "../../assets/images/logo.png";
 
 
 const Footer = () =>{
@@ -10,7 +10,7 @@ const Footer = () =>{
                 <div className="row">
                     <div className="col-lg-4 col-md-4 col-sm-9">
                         <section className="footer-item">
-                            <a href="index-2.html" className="logo footer-logo"><img src={Logo} alt="biolife logo" width="135" height="34" /></a>
+                            <a href="#" className="logo footer-logo"><img src={Logo} alt="biolife logo"/></a>
                             <div className="footer-phone-info">
                                 <i className="biolife-icon icon-head-phone"></i>
                                 <p className="r-info">
@@ -108,7 +108,7 @@ const Footer = () =>{
                         <div className="separator sm-margin-top-70px xs-margin-top-40px"></div>
                     </div>
                     <div className="col-lg-6 col-sm-6 col-xs-12">
-                        <div className="copy-right-text"><p><a href="templateshub.net">Templates Hub</a></p></div>
+                        <div className="copy-right-text"><p><a href="#">@ 2025 Copyright</a></p></div>
                     </div>
                     <div className="col-lg-6 col-sm-6 col-xs-12">
                         <div className="payment-methods">

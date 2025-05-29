@@ -3099,10 +3099,10 @@ textarea.form-control-lg {
   --bs-form-select-bg-img: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2336404a' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
   display: block;
   width: 100%;
-  padding: 0.5rem 3rem 0.5rem 1rem;
+  /* padding: 0.5rem 3rem 0.5rem 1rem;
   font-size: 0.875rem;
   font-weight: 400;
-  line-height: 1.5;
+  line-height: 1.5; */
   color: var(--bs-body-color);
   -webkit-appearance: none;
      -moz-appearance: none;
@@ -22151,4 +22151,8 @@ p.no-span::after {
   .timeline .timeline-icon {
     display: none;
   }
+}
+.nav>li>a:hover, .nav>li>a:focus {
+    text-decoration: none;
+    background-color: #f63f3f !important;
 }

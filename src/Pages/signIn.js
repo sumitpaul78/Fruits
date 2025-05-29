@@ -3,62 +3,52 @@ import React, { useState } from 'react'
 import toast from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import { auth } from '../firebase/FirebaseConfig';
-
+import { doc, setDoc } from "firebase/firestore";
+import { fireDB } from "../firebase/FirebaseConfig"; // adjust as needed
+import { useForm } from "react-hook-form";
 
 const SignIn =()=> {
+const [isLoading, setIsLoading] = useState(false);
+   
+ const form = useForm({
+    
+    mode:"all",
+       defaultValues:{
+        username:"",
+        userph:"",
+        useremail:"",
+        userpassword:"",        
+    }
+   
+  })
+ const { register, 
+    handleSubmit,
+    watch,
+    formState: { errors },reset } = form;
 
-    // const navigateUrl = useNavigate();
-    const [UserSignin, SetUserSignin] = useState({
-        username: "",
-        userph: "",
-        useremail: "",
-        userpassword: "",
+   const onSubmit = async (data) => {
+  setIsLoading(true);
+  try {
+    const res = await createUserWithEmailAndPassword(auth, data.useremail, data.userpassword);
+    const user = res.user;
+    await setDoc(doc(fireDB, "users", user.uid), {
+      username: data.username,
+      userph: data.userph,
+      email: data.useremail,
+      uid: user.uid,
+      createdAt: new Date().toISOString(),
     });
+    toast.success("User registered successfully!");
+    reset();
+  } catch (err) {
+    console.error(err);
+    toast.error(err.message);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
-    const handleChange = (e) =>{
-        SetUserSignin({
-            ...UserSignin, [e.target.name]:e.target.value
-        })
-        // console.log(UserSignin);
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-      
-        const { username, userph, useremail, userpassword } = UserSignin;
-      
-        if (!username || !userph || !useremail || !userpassword) {
-          toast.error("Please fill in all fields.");
-          return;
-        }
-      
-        const email = useremail.trim();
-        const password = userpassword.trim();
-        const isValidEmail = (email) => /\S+@\S+\.\S+/.test(email);
-      
-        if (!isValidEmail(email)) {
-          toast.error("Invalid email format.");
-          return;
-        }
-      
-        createUserWithEmailAndPassword(auth, email, password)
-          .then(async(res) => {
-            toast.success("User registered successfully!");
-            const user = res.user;
-            // console.log("User created:", user);
-           await updateProfile(user,{
-                displayName:UserSignin.username
-            });
-          })
-         
-          .catch((err) => {
-            console.error(err);
-            toast.error(err.message);
-          });
-        //   navigateUrl("/login")
-      };
-      
-
+    
   return (
     <>
        <div className="hero-section hero-background">
@@ -68,40 +58,79 @@ const SignIn =()=> {
       <div className="container">
         <nav className="biolife-nav">
             <ul>
-                <li className="nav-item"><a href="#" className="permal-link">Home</a></li>
+                <li className="nav-item"><Link to="" className="permal-link">Home</Link></li>
                 <li className="nav-item"><span className="current-page">SignIn</span></li>
             </ul>
         </nav>
          </div>
 
-    <div className="page-contain login-page">
+    <div className="page-contain login-page pb-5">
 
         
         <div id="main-content" className="main-content">
             <div className="container">
                 <div className="row">
-                    <div className="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div className="col-12 col-lg-6 col-md-6 col-sm-6 m-auto signin-content">
                         <div className="signin-container">
-                            <form name="frm-login">
+                            <form name="frm-login"  onSubmit={handleSubmit(onSubmit)}>
                             <p className="form-row">
                                     <label for="fid-name">User Name:<span className="requite">*</span></label>
-                                    <input type="text" name="username" value={UserSignin.username} className="txt-input" onChange={handleChange}/>
+                                    <input type="text" className="txt-input"                                    
+                                    {...register("username",
+                                    {
+                                    required:"Please Enter user name",
+                                    minLength:{value:3, message:"Please enter atleast 3 letter"}
+                                    }
+                                     )}
+                                    />
+                                    <span className="text-danger"> {errors?.username?.message}</span>
                                 </p>
                                  <p className="form-row">
                                     <label for="fid-name">Contact No:<span className="requite">*</span></label>
-                                    <input type="text"  name="userph" value={UserSignin.userph} className="txt-input" onChange={handleChange}/>
+                                    <input type="text" className="txt-input" 
+                                    {...register("userph",
+                                    {
+                                    required:"Please Enter your contact no",
+                                    minLength:{value:10, message:"Please enter atleast 10 letter"}
+                                    }
+                                    )}
+                                    />
+                                    <span className="text-danger"> {errors?.userph?.message}</span>
                                 </p>
                                 <p className="form-row">
                                     <label for="fid-name">Email Address:<span className="requite">*</span></label>
-                                    <input type="text" name="useremail" value={UserSignin.useremail} className="txt-input" onChange={handleChange}/>
+                                    <input type="text" name="useremail" className="txt-input"
+                                      placeholder="you@example.com"
+                                        {...register("useremail",
+                                        {
+                                        required:"Please Enter Valid Email",
+                                        pattern:{value:/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/, message:"Enter valid email"}
+                                        }
+                                        )}
+                                    />
+                                     <span className="text-danger"> {errors?.useremail?.message}</span>
                                 </p>
                                 <p className="form-row">
                                     <label for="fid-pass">Password:<span className="requite">*</span></label>
-                                    <input type="password"  name="userpassword" value={UserSignin.userpassword} className="txt-input" onChange={handleChange}/>
+                                    <input type="password" className="txt-input"
+                                     {...register("userpassword",
+                                    {
+                                    required:"Please Enter your password",
+                                    minLength:{value:10, message:"Please enter atleast 10 letter"}
+                                    }
+                                    )}
+                                    />
+                                    <span className="text-danger"> {errors?.userpassword?.message}</span>
                                 </p>
                                 <p className="form-row wrap-btn">
-                                    <button className="btn btn-submit btn-bold" type="button" onClick={handleSubmit}>sign in</button>
-                                   
+                                      <button
+                                        className="btn btn-submit btn-bold"
+                                        type="submit"  disabled={isLoading}
+                                        >
+                                        {isLoading ? "Processing..." : "Continue to checkout"}
+                                        </button>
+                                    
+                                    <p>Already have account ? <Link to="/login" >Log In</Link> </p>
                                 </p>
                             </form>
                         </div>

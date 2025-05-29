@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { collection, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { fireDB } from '../../../firebase/FirebaseConfig';
 import { Link } from "react-router-dom";
+import CurrencyFormat from "../../../global-component/CurrencyFormat";
+import toast from 'react-hot-toast';
 
 const Productlist = () => {
     const [products, setProducts] = useState([]);
@@ -12,14 +14,21 @@ const Productlist = () => {
   const fetchProducts = async () => {
     try {
       const querySnapshot = await getDocs(collection(fireDB, "products"));
-      const productList = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      const productList = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          // check product staus
+          isActive: data.isActive ?? false, 
+          isLatest: data.isLatest ?? false,
+          isDealpro: data.isDealpro ?? false,
+          ...data
+        };
+      });
       setProducts(productList);
     } catch (error) {
       console.error("Error fetching products:", error);
-      alert("Failed to fetch products.");
+      toast.error("Failed to fetch products.");
     }
   };
 const handleDelete = async (productId) => {
@@ -27,10 +36,10 @@ const handleDelete = async (productId) => {
     try {
       await deleteDoc(doc(fireDB, "products", productId));
       setProducts(products.filter(p => p.id !== productId));
-      alert("Product deleted successfully!");
+      toast.success("Product deleted successfully!");
     } catch (error) {
       console.error("Error deleting product:", error);
-      alert("Failed to delete product.");
+      toast.error("Failed to delete product.");
     }
   }
 };
@@ -45,8 +54,10 @@ const handleUpdate = async (e) => {
       product_type: selectedProduct.product_type,
       product_qty: selectedProduct.product_qty,
       product_price: selectedProduct.product_price,
+      discount_price: selectedProduct.discount_price,
+      product_description: selectedProduct.product_description,
     });
-    alert("Product updated successfully!");
+    toast.success("Product updated successfully!");
 
     // Update in UI without reloading all
     setProducts((prev) =>
@@ -57,9 +68,36 @@ const handleUpdate = async (e) => {
     setSelectedProduct(null);
   } catch (error) {
     console.error("Update error:", error);
-    alert("Failed to update product.");
+    toast.error("Failed to update product.");
   }
 };
+
+// check handle Toggle
+
+const handleToggleStatus = async (productId, field, newValue) => {
+  try {
+    const docRef = doc(fireDB, "products", productId);
+    await updateDoc(docRef, {
+      [field]: newValue,
+    });
+
+    // Update local state
+    setProducts(prev =>
+      prev.map(product =>
+        product.id === productId
+          ? { ...product, [field]: newValue }
+          : product
+      )
+    );
+
+    toast.success(`${field === "isActive" ? "Active status" : "Latest status"} updated!`);
+  } catch (error) {
+    console.error(`Error updating ${field}:`, error);
+    toast.error("Failed to update status.");
+  }
+};
+
+
 
   useEffect(() => {
     fetchProducts();
@@ -76,8 +114,6 @@ const handleUpdate = async (e) => {
                 <div className="card-body">
                   <div className="d-flex align-items-center justify-content-between ">
                     <h3 className="">Product List</h3>
-
-                    
                   </div>
                 </div>
 
@@ -85,28 +121,87 @@ const handleUpdate = async (e) => {
                   <table className="table mb-0">
                     <thead className="bg-light bg-opacity-50">
                       <tr>
+                        <th>Product Status</th>
                         <th className="ps-3">Product ID.</th>
                         <th>Product Image</th>
                         <th>Product Name</th>                        
                         <th>Product Type</th>
                         <th>Product Quantity</th>
                         <th>Product Price</th>
+                        <th>Discount Price</th>
+                         <th className='w-25'>Product Description</th>
+                         <th>Choose Latest Product</th>
+                         <th>Choose Today's Deal</th>
                         <th>Actions</th>
+                       
                       </tr>
                     </thead>
 
                    <tbody>
                   {products.map(product => (
                     <tr key={product.id}>
-                      <td className="ps-3">{product.product_id}</td>
+                      <td>
+                        <div class="form-check form-switch">
+                       <input
+                        className="form-check-input active-input"
+                        type="checkbox"
+                        checked={product.isActive || false}
+                        onChange={() => handleToggleStatus(product.id, 'isActive', !product.isActive)}
+                        id={`active-${product.id}`}
+                      />
+                      {/* <label className="form-check-label" htmlFor={`active-${product.id}`}>
+                        Switch to Active
+                      </label> */}
+                      </div>
+                      </td>
+                      <td >{product.product_id}</td>
                       <td>
                         <img src={product.imageURL} alt={product.product_name} className="img-fluid avatar-sm" />
                       </td>
                       <td>{product.product_name}</td>
                       <td>{product.product_type}</td>
                       <td>{product.product_qty}</td>
-                      <td>{product.product_price}</td>
                       <td>
+                        <CurrencyFormat value={product.product_price} />
+                      
+                      </td>
+                      <td>
+                        <CurrencyFormat value={product.discount_price} />
+                      
+                      </td>
+                      <td >
+                       {product.product_description}
+                      
+                      </td>
+                      <td>
+                        <div class="form-check form-switch">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          checked={product.isLatest || false}
+                          onChange={() => handleToggleStatus(product.id, 'isLatest', !product.isLatest)}
+                          id={`latest-${product.id}`}
+                        />
+                        {/* <label className="form-check-label" htmlFor={`latest-${product.id}`}>
+                          Latest Product
+                        </label> */}
+                      </div>
+                      </td>
+                       <td>
+                        <div class="form-check form-switch">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          checked={product.isDealpro || false}
+                          onChange={() => handleToggleStatus(product.id, 'isDealpro', !product.isDealpro)}
+                          id={`latest-${product.id}`}
+                        />
+                        {/* <label className="form-check-label" htmlFor={`latest-${product.id}`}>
+                          Deal
+                        </label> */}
+                      </div>
+                      </td>
+                      <td className='d-flex align-center'>
                         <button
                           className="btn btn-sm btn-danger me-2"
                           onClick={() => handleDelete(product.id)}
@@ -181,6 +276,15 @@ const handleUpdate = async (e) => {
                                 className="form-control"
                                 value={selectedProduct.product_price}
                                 onChange={(e) => setSelectedProduct({ ...selectedProduct, product_price: e.target.value })}
+                              />
+                            </div>
+                              <div className="mb-3">
+                              <label>Product Description</label>
+                              <textarea
+                                type="text"
+                                className="form-control"
+                                value={selectedProduct.product_description}
+                                onChange={(e) => setSelectedProduct({ ...selectedProduct, product_description: e.target.value })}
                               />
                             </div>
 

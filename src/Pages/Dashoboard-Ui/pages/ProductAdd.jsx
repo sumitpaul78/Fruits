@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useForm } from "react-hook-form";
 import { fireDB } from '../../../firebase/FirebaseConfig';
-// import { storage } from "../../../firebase/FirebaseConfig";
 import { query, where, getDocs, updateDoc, doc, collection, addDoc } from 'firebase/firestore';
+import toast from 'react-hot-toast';
 // import { ref, uploadBytes, getDownloadURL  } from "firebase/storage";
 
 // import { Cloudinary } from '@cloudinary/url-gen';
@@ -13,6 +13,10 @@ import { query, where, getDocs, updateDoc, doc, collection, addDoc } from 'fireb
 const ProductAdd = () => {
 
      const [isLoading, setIsLoading] = useState(false);
+     const [isActive, setIsActive] = useState(false);
+     const [isLatest, setIsLatest] = useState(false);
+     const [isDealpro, setIsDealPro] = useState(false);
+     
 
      const form = useForm({
           defaultValues:{
@@ -25,8 +29,8 @@ const ProductAdd = () => {
      })
      const {register,handleSubmit,formState:{errors},reset } = form;
 
-
-     const onSubmit = async (data) => {
+// Data push in FireDB
+const onSubmit = async (data) => {
   setIsLoading(true);
   try {
     const file = data.my_file?.[0];
@@ -48,53 +52,49 @@ const ProductAdd = () => {
       }
     );
     const cloudinaryData = await cloudinaryRes.json();
-
     if (!cloudinaryData.secure_url) {
       throw new Error("Failed to upload image to Cloudinary");
     }
-
     const imageURL = cloudinaryData.secure_url;
 
-    // Check for existing product with same ID
+    // Get highest existing product_id
     const productsRef = collection(fireDB, "products");
-    const q = query(productsRef, where("product_id", "==", data.product_id));
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await getDocs(productsRef);
 
-    if (!querySnapshot.empty) {
-      // Product with same ID exists — update first match
-      const existingDoc = querySnapshot.docs[0];
-      const existingData = existingDoc.data();
+    let maxId = 0;
+    querySnapshot.forEach((docSnap) => {
+      const product = docSnap.data();
+      if (typeof product.product_id === "number" && product.product_id > maxId) {
+        maxId = product.product_id;
+      }
+    });
 
-      const updatedQty = parseInt(existingData.product_qty) + parseInt(data.product_qty);
-      const updatedPrice = data.product_price; // Optionally average or override
+    const newProductId = maxId + 1;
 
-      await updateDoc(doc(fireDB, "products", existingDoc.id), {
-        product_qty: updatedQty,
-        product_price: updatedPrice,
-        imageURL,
-        updatedAt: new Date().toISOString(),
-      });
+    // Create new product
+    await addDoc(productsRef, {
+      product_id: newProductId,
+      product_name: data.product_name,
+      product_type: data.product_type,
+      product_qty: parseInt(data.product_qty),
+      product_price: data.product_price,
+      discount_price: data.discount_price,
+      product_description: data.product_description,
+      imageURL,
+      isActive,
+      isLatest,
+      isDealpro,
+      createdAt: new Date().toISOString(),
+    });
 
-      alert("Product updated successfully!");
-    } else {
-      // No product with same ID — create new
-      await addDoc(productsRef, {
-        product_id: data.product_id,
-        product_name: data.product_name,
-        product_type: data.product_type,
-        product_qty: parseInt(data.product_qty),
-        product_price: data.product_price,
-        imageURL,
-        createdAt: new Date().toISOString(),
-      });
-
-      alert("Product added successfully!");
-    }
-
+    toast.success("Product added successfully!");
     reset();
+    setIsActive(false);
+    setIsLatest(false);
+    setIsDealPro(false);
   } catch (error) {
     console.error("Error:", error);
-    alert("Failed to add/update product. See console for details.");
+    toast.alert("Failed to add product. See console for details.");
   } finally {
     setIsLoading(false);
   }
@@ -110,55 +110,7 @@ const ProductAdd = () => {
                <div className="container-xxl">
 
                     <div className="row">
-                         {/* <div className="col-xl-3 col-lg-4">
-                              <div className="card">
-                                   <div className="card-body">
-                                        <img src="assets/images/product/p-1.png" alt="" className="img-fluid rounded bg-light" />
-                                        <div className="mt-3">
-                                             <h4>Men Black Slim Fit T-shirt <span className="fs-14 text-muted ms-1">(Fashion)</span></h4>
-                                             <h5 className="text-dark fw-medium mt-3">Price :</h5>
-                                             <h4 className="fw-semibold text-dark mt-2 d-flex align-items-center gap-2">
-                                                  <span className="text-muted text-decoration-line-through">$100</span> $80 <small className="text-muted"> (30% Off)</small>
-                                             </h4>
-                                             <div className="mt-3">
-                                                  <h5 className="text-dark fw-medium">Size :</h5>
-                                                  <div className="d-flex flex-wrap gap-2" role="group" aria-label="Basic checkbox toggle button group">
-                                                       <input type="checkbox" className="btn-check" id="size-s" />
-                                                       <label className="btn btn-light avatar-sm rounded d-flex justify-content-center align-items-center" for="size-s">S</label>
-
-                                                       <input type="checkbox" className="btn-check" id="size-m" checked="" />
-                                                       <label className="btn btn-light avatar-sm rounded d-flex justify-content-center align-items-center" for="size-m">M</label>
-
-                                                       <input type="checkbox" className="btn-check" id="size-xl" />
-                                                       <label className="btn btn-light avatar-sm rounded d-flex justify-content-center align-items-center" for="size-xl">Xl</label>
-
-                                                       <input type="checkbox" className="btn-check" id="size-xxl" />
-                                                       <label className="btn btn-light avatar-sm rounded d-flex justify-content-center align-items-center" for="size-xxl">XXL</label>
-
-                                                  </div>
-                                             </div>
-                                             <div className="mt-3">
-                                                  <h5 className="text-dark fw-medium">Colors :</h5>
-                                                  <div className="d-flex flex-wrap gap-2" role="group" aria-label="Basic checkbox toggle button group">
-                                                       <input type="checkbox" className="btn-check" id="color-dark" />
-                                                       <label className="btn btn-light avatar-sm rounded d-flex justify-content-center align-items-center" for="color-dark"> <i className="bx bxs-circle fs-18 text-dark"></i></label>
-
-                                                       <input type="checkbox" className="btn-check" id="color-yellow" />
-                                                       <label className="btn btn-light avatar-sm rounded d-flex justify-content-center align-items-center" for="color-yellow"> <i className="bx bxs-circle fs-18 text-warning"></i></label>
-
-                                                       <input type="checkbox" className="btn-check" id="color-white" />
-                                                       <label className="btn btn-light avatar-sm rounded d-flex justify-content-center align-items-center" for="color-white"> <i className="bx bxs-circle fs-18 text-white"></i></label>
-
-                                                       <input type="checkbox" className="btn-check" id="color-red" />
-                                                       <label className="btn btn-light avatar-sm rounded d-flex justify-content-center align-items-center" for="color-red"> <i className="bx bxs-circle fs-18 text-danger"></i></label>
-
-                                                  </div>
-                                             </div>
-                                        </div>
-                                   </div>
-                                  
-                              </div>
-                         </div> */}
+                        
 
                          <div className="col-xl-12 col-lg-12 ">
                               <form className="form-horizontal dropzone dz-clickable" onSubmit={handleSubmit(onSubmit)}>
@@ -187,8 +139,45 @@ const ProductAdd = () => {
                               </div>
                               
                               <fieldset>
+                                     <div className="form-group">
+                                        <label className="col-md-4 control-label" htmlFor="product_status">Product Status</label>
+                                        <div className="col-md-4">
+                                             <div class="form-check form-switch">
+                                             <input class="form-check-input" type="checkbox" role="switch" id="active_product" 
+                                             checked={isActive}
+                                             onChange={() => setIsActive(prev => !prev)} />
+
+                                             <label class="form-check-label"  htmlFor="active_product">Switch to Active</label>
+                                             </div>
+                                        </div>
+                                   </div>
+                                   <div className="form-group">
+                                        <label className="col-md-4 control-label" htmlFor="product_status">Product Category </label>
+                                        <div className="col-md-4">
+                                             <div class="form-check form-switch">
+                                             <input class="form-check-input" type="checkbox" role="switch" id="latestpro" 
+                                             checked={isLatest}
+                                             onChange={() => setIsLatest(prev => !prev)}
+                                             />
+                                             <label class="form-check-label" htmlFor="latestpro">Switch to Latest</label>
+                                             </div>
+                                        </div>
+                                   </div>
 
                                    <div className="form-group">
+                                        <label className="col-md-4 control-label" htmlFor="product_status">Add to Deal Product </label>
+                                        <div className="col-md-4">
+                                             <div class="form-check form-switch">
+                                             <input class="form-check-input" type="checkbox" role="switch" id="dealPro" 
+                                             checked={isDealpro}
+                                             onChange={() => setIsDealPro(prev => !prev)}
+                                             />
+                                             <label class="form-check-label" htmlFor="dealPro">Add to Today's Deal</label>
+                                             </div>
+                                        </div>
+                                   </div>
+
+                                   {/* <div className="form-group">
                                         <label className="col-md-4 control-label" htmlFor="product_id">Product ID</label>
                                         <div className="col-md-4">
                                         <input
@@ -205,8 +194,8 @@ const ProductAdd = () => {
                                         />
                                           <p className="text-danger"> {errors?.product_id?.message}</p>
                                         </div>
-                                   </div>
-                                   <div className="form-group">
+                                   </div> */}
+                                        <div className="form-group">
                                         <label className="col-md-4 control-label" htmlFor="product_id">Product Name</label>
                                         <div className="col-md-4">
                                         <input
@@ -224,6 +213,7 @@ const ProductAdd = () => {
                                         <p className="text-danger"> {errors?.product_name?.message}</p>
                                         </div>
                                    </div>
+                                 
                                    <div className="form-group">
                                         <label className="col-md-4 control-label" htmlFor="product_id">Product Type</label>
                                         <div className="col-md-4">
@@ -281,6 +271,45 @@ const ProductAdd = () => {
 
                                         </div>
                                    </div>
+                                     <div className="form-group">
+                                        <label className="col-md-4 control-label" htmlFor="discount_price">Discount Price</label>
+                                        <div className="col-md-4">
+                                        <input
+                                             id="discount_price"
+                                             name="product_price"
+                                             placeholder="Product Price"
+                                             className="form-control input-md"
+                                             type="text"
+                                              {...register("discount_price",
+                                                  {
+                                                       required:"Please enter product Price"
+                                                  }
+                                             )}
+                                        />
+                                        <p className="text-danger"> {errors?.discount_price?.message}</p>
+
+                                        </div>
+                                   </div>
+                                  
+                                     <div className="form-group">
+                                        <label className="col-md-4 control-label" htmlFor="product_id">Product Description</label>
+                                        <div className="col-md-4">
+                                        <textarea
+                                             id="product_description"
+                                             name="product_description"
+                                             placeholder="Product Description"
+                                             className="form-control input-md"
+                                             type="text"
+                                              {...register("product_description",
+                                                  {
+                                                       required:"Please enter product Description"
+                                                  }
+                                             )}
+                                        />
+                                        <p className="text-danger"> {errors?.product_description?.message}</p>
+
+                                        </div>
+                                   </div>
                                    <div className="form-group text-center">
                                         
                                   <div className="col-md-12">
@@ -296,7 +325,7 @@ const ProductAdd = () => {
                     </div>
                </div>
 
-          </div>
+        </div>
     </>
   )
 }

@@ -15,33 +15,45 @@ import MainLayout from "./Component/Layout/MainLayout";
 import ProductAdd from "./Pages/Dashoboard-Ui/pages/ProductAdd";
 import Pagecontent from "./Pages/Dashoboard-Ui/pages/Productlist";
 import DashboardHome from "./Pages/Dashoboard-Ui/pages/DashboardHome";
+import BlogList from "./Pages/Dashoboard-Ui/pages/BlogList";
+import BlogAdd from "./Pages/Dashoboard-Ui/pages/BlogAdd";
+import UserRole from "./Pages/Dashoboard-Ui/pages/UserRole";
+import Shop from "./Pages/Shop";
+import Thankyou from "./Pages/Thankyou";
+import OrdderList from "./Pages/Dashoboard-Ui/pages/OrderList";
+import OrderDetails from "./Pages/Dashoboard-Ui/pages/OrderDetails";
+import Contact from "./Pages/Contact";
+import BlogDetails from "./Pages/BlogDetails";
 
 
 
 function App() {
-  useEffect(() =>{ 
-    const script = document.createElement("script");
-    script.src = "js/custom.js";
-    document.body.appendChild(script);
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
+  // useEffect(() =>{ 
+  //   const script = document.createElement("script");
+  //   script.src = "/public/js/custom.js";
+  //   document.body.appendChild(script);
+  //   return () => {
+  //     document.body.removeChild(script);
+  //   };
+  // }, []);
 
  
   
   return (
     <BrowserRouter>
-        {/* <Header /> */}
-        {/* <MainLayout /> */}
+        
         <Routes>
           <Route path="/" element={<MainLayout />} > 
           <Route index element={<HomePage />} />
           <Route path="/cart"  element={<CartPage />} />
+          <Route path="/shop"  element={<Shop />} />
           <Route path="/checkout"  element={<Checkout />} />
           <Route path="/login"  element={<Login />} />
           <Route path="/signin"  element={<SignIn />} />
-          <Route path="/:id"  element={<SingleProduct />} />
+          <Route path="/:product_id"  element={<SingleProduct />} />
+          <Route path="/blog"  element={<BlogDetails />} />
+          <Route path="/contact"  element={<Contact />} />
+        <Route path="/thankyou/:orderId" element={<Thankyou />} />
           <Route path="/nopage" element={<Nopage />} />
           <Route path="*" element={<Navigate to="/nopage" />} />
           </Route>
@@ -50,8 +62,14 @@ function App() {
           <Route path="/dashboard" element={<DashboardHome />} />
           <Route path="/addproduct" element={<ProductAdd />} />
           <Route path="/productlist" element={<Pagecontent />} />
+          <Route path="/dashboard/addblog" element={<BlogAdd />} />
+          <Route path="/dashboard/bloglist" element={<BlogList />} />
+          <Route path="/dashboard/oderlist" element={<OrdderList />} />
+          <Route path="/dashboard/orderlist/orderdetails/:order_id" element={<OrderDetails />} />
+          <Route path="/dashboard/userrole" element={<UserRole />} />
         
-        </Route>
+        
+          </Route>
         </Routes>
         <Toaster />
        
