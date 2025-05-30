@@ -4,6 +4,7 @@ import Logo from "../../assets/images/logo.png";
 import Sidenav from "./Sidenav";
 import Primarymenu from "./Primarymenu";
 import { useSelector } from "react-redux";
+import { getCartTotal, resetCart } from "../../features/cartSlice";
 import CurrencyFormat from "../../global-component/CurrencyFormat";
 
 const Header =()=>{
@@ -42,8 +43,10 @@ const Header =()=>{
                             <li><Link to=""><i className="fa fa-pinterest" aria-hidden="true"></i></Link></li>
                         </ul>
                         <ul className="horizontal-menu">
-                           
+                           <li><Link to={'/dashboard'} className="login-link">Dashoboard</Link></li>
                             <li><Link to={'/login'} className="login-link"><i className="biolife-icon icon-login"></i>Login/Register</Link></li>
+                            
+
                         </ul>
                     </div>
                 </div>
@@ -98,8 +101,8 @@ const Header =()=>{
                                                     <i className="icon-cart-mini biolife-icon"></i>
                                                     <span className="qty">{cart.length}</span>
                                                 </span>
-                                            <span className="title">My Cart -</span>
-                                            <span className="sub-total">$0.00</span>
+                                            <span className="title">My Cart </span>
+                                            {/* <span className="sub-total"> <CurrencyFormat value={getCartTotal} /></span> */}
                                         </Link>
                                         <div className="cart-content">
                                             <div className="cart-inner">

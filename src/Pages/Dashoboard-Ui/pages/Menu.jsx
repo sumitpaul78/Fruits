@@ -1,13 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import Logo from "../../../assets/images/organic-2.png";
+import Logo from "../../../assets/images/logo-white.png";
 
 const Menu = () => {
   return (
     <>
       <div className="main-nav">
         <div className="logo-box">
-          <a href="index.html" className="logo-dark">
+          {/* <a href="index.html" className="logo-dark">
             <img
               src="assets/images/logo-sm.png"
               className="logo-sm"
@@ -18,7 +18,7 @@ const Menu = () => {
               className="logo-lg"
               alt="logo dark"
             />
-          </a>
+          </a> */}
 
           <a href="index.html" className="logo-light">
             <Link className="biolife-logo" to={"/"}>
@@ -27,7 +27,7 @@ const Menu = () => {
           </a>
         </div>
 
-        <button
+        {/* <button
           type="button"
           className="button-sm-hover"
           aria-label="Show Full Sidebar"
@@ -36,7 +36,7 @@ const Menu = () => {
             icon="solar:double-alt-arrow-right-bold-duotone"
             className="button-sm-hover-icon"
           ></iconify-icon>
-        </button>
+        </button> */}
 
         <div className="scrollbar" data-simplebar>
           <ul className="navbar-nav" id="navbar-nav">

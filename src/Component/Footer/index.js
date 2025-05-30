@@ -68,7 +68,7 @@ const Footer = () =>{
                                     <li>
                                         <p className="info-item">
                                             <i className="biolife-icon icon-location"></i>
-                                            <b className="desc">7563 St. Vicent Place, Glasgow, Greater Newyork NH7689, UK </b>
+                                            <b className="desc">TBD </b>
                                         </p>
                                     </li>
                                     <li>
