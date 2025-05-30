@@ -2,30 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { collection, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { fireDB } from '../../../firebase/FirebaseConfig';
 import toast from 'react-hot-toast';
+import { fetchUsers } from '../../../features/userRoleSlice';
+import { useDispatch, useSelector } from "react-redux";
 
 const UserRole = () => {
+   const dispatch = useDispatch();
+  const user = useSelector((state) => state.userlist.items);
 
-    const [user, setUser] = useState([]);
-    
-      const fetchuser = async () => {
+    const handleDelete = async (userId) => {
+      if (window.confirm("Are you sure you want to delete this user?")) {
         try {
-          const querySnapshot = await getDocs(collection(fireDB, "users"));
-          const productList = querySnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          }));
-          setUser(productList);
-        } catch (error) {
-          console.error("Error fetching blog:", error);
-          toast.error("Failed to fetch blog.");
-        }
-      };
-    const handleDelete = async (productId) => {
-      if (window.confirm("Are you sure you want to delete this blog?")) {
-        try {
-          await deleteDoc(doc(fireDB, "user", productId));
-          setUser(user.filter(p => p.id !== productId));
+          await deleteDoc(doc(fireDB, "users", userId));
           toast.success("User deleted successfully!");
+           dispatch(fetchUsers()); 
         } catch (error) {
           console.error("Error deleting User:", error);
           toast.error("Failed to delete User.");
@@ -34,11 +23,9 @@ const UserRole = () => {
     };
     
   
-   
-
-      useEffect(() => {
-        fetchuser();
-      }, []);
+ useEffect(() => {
+      dispatch(fetchUsers());
+    }, [dispatch]);
     
 
   return (
@@ -72,10 +59,10 @@ const UserRole = () => {
                    <tbody>
                   {user.map(product => (
                     <tr key={product.id}>
-                     
-                      <td className="ps-3">{product.username}</td>
+                     <td> {product.username}</td>
+                    
                       <td>
-                         <td className="ps-3">{product.userph}</td>
+                        {product.userph}
                       </td>
                       <td>{product.email}</td>
                       <td>{product.uid}</td>

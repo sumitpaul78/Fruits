@@ -61,7 +61,7 @@ function App() {
         <Route path="/" element={<DashboradLayout />}>
           <Route path="/dashboard" element={<DashboardHome />} />
           <Route path="/addproduct" element={<ProductAdd />} />
-          <Route path="/productlist" element={<Pagecontent />} />
+          <Route path="/dashboard/productlist" element={<Pagecontent />} />
           <Route path="/dashboard/addblog" element={<BlogAdd />} />
           <Route path="/dashboard/bloglist" element={<BlogList />} />
           <Route path="/dashboard/oderlist" element={<OrdderList />} />

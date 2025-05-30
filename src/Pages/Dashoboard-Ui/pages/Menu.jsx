@@ -73,7 +73,7 @@ const Menu = () => {
                     </Link>
                   </li>
                   <li className="sub-nav-item">
-                    <Link className="sub-nav-link" to={"/productlist"}>
+                    <Link className="sub-nav-link" to={"/dashboard/productlist"}>
                       Product List
                     </Link>
                   </li>
