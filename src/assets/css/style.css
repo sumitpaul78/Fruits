@@ -15132,3 +15132,9 @@ input[type="file"]:focus, input[type="radio"]:focus, input[type="checkbox"]:focu
     transform: scale(1.05);
      transition: transform 0.3s ease-in-out;
 }
+.product-name-cell{
+    width: 50%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

@@ -24,6 +24,7 @@ import OrdderList from "./Pages/Dashoboard-Ui/pages/OrderList";
 import OrderDetails from "./Pages/Dashoboard-Ui/pages/OrderDetails";
 import Contact from "./Pages/Contact";
 import BlogDetails from "./Pages/BlogDetails";
+import InventoryProduct from "./Pages/Dashoboard-Ui/pages/InventoryProduct";
 
 
 
@@ -66,6 +67,7 @@ function App() {
           <Route path="/dashboard/bloglist" element={<BlogList />} />
           <Route path="/dashboard/oderlist" element={<OrdderList />} />
           <Route path="/dashboard/orderlist/orderdetails/:order_id" element={<OrderDetails />} />
+          <Route path="/dashboard/inventory" element={<InventoryProduct />} />
           <Route path="/dashboard/userrole" element={<UserRole />} />
         
         

@@ -4,39 +4,22 @@ import { fireDB } from '../../../firebase/FirebaseConfig';
 import { Link } from "react-router-dom";
 import CurrencyFormat from "../../../global-component/CurrencyFormat";
 import toast from 'react-hot-toast';
+import { fetchProducts } from '../../../features/productSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Productlist = () => {
-    const [products, setProducts] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
 
+    const dispatch = useDispatch();
+    const productsList = useSelector((state) => state.products.items);
 
-  const fetchProducts = async () => {
-    try {
-      const querySnapshot = await getDocs(collection(fireDB, "products"));
-      const productList = querySnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          // check product staus
-          isActive: data.isActive ?? false, 
-          isLatest: data.isLatest ?? false,
-          isDealpro: data.isDealpro ?? false,
-          ...data
-        };
-      });
-      setProducts(productList);
-    } catch (error) {
-      console.error("Error fetching products:", error);
-      toast.error("Failed to fetch products.");
-    }
-  };
 const handleDelete = async (productId) => {
   if (window.confirm("Are you sure you want to delete this product?")) {
     try {
       await deleteDoc(doc(fireDB, "products", productId));
-      setProducts(products.filter(p => p.id !== productId));
       toast.success("Product deleted successfully!");
+        dispatch(fetchProducts());
     } catch (error) {
       console.error("Error deleting product:", error);
       toast.error("Failed to delete product.");
@@ -60,9 +43,7 @@ const handleUpdate = async (e) => {
     toast.success("Product updated successfully!");
 
     // Update in UI without reloading all
-    setProducts((prev) =>
-      prev.map((p) => (p.id === selectedProduct.id ? selectedProduct : p))
-    );
+     dispatch(fetchProducts());
 
     setShowModal(false);
     setSelectedProduct(null);
@@ -82,13 +63,7 @@ const handleToggleStatus = async (productId, field, newValue) => {
     });
 
     // Update local state
-    setProducts(prev =>
-      prev.map(product =>
-        product.id === productId
-          ? { ...product, [field]: newValue }
-          : product
-      )
-    );
+    dispatch(fetchProducts());
 
     toast.success(`${field === "isActive" ? "Active status" : "Latest status"} updated!`);
   } catch (error) {
@@ -100,8 +75,8 @@ const handleToggleStatus = async (productId, field, newValue) => {
 
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    dispatch(fetchProducts());
+  }, [dispatch]);
 
   
   return (
@@ -129,7 +104,7 @@ const handleToggleStatus = async (productId, field, newValue) => {
                         <th>Product Quantity</th>
                         <th>Product Price</th>
                         <th>Discount Price</th>
-                         <th className='w-25'>Product Description</th>
+                         <th>Product Description</th>
                          <th>Choose Latest Product</th>
                          <th>Choose Today's Deal</th>
                         <th>Actions</th>
@@ -138,7 +113,7 @@ const handleToggleStatus = async (productId, field, newValue) => {
                     </thead>
 
                    <tbody>
-                  {products.map(product => (
+                  {productsList.map(product => (
                     <tr key={product.id}>
                       <td>
                         <div class="form-check form-switch">
@@ -169,7 +144,7 @@ const handleToggleStatus = async (productId, field, newValue) => {
                         <CurrencyFormat value={product.discount_price} />
                       
                       </td>
-                      <td >
+                      <td className='product-name-cell' >
                        {product.product_description}
                       
                       </td>
@@ -220,7 +195,7 @@ const handleToggleStatus = async (productId, field, newValue) => {
                       </td>
                     </tr>
                   ))}
-                  {products.length === 0 && (
+                  {productsList.length === 0 && (
                     <tr>
                       <td colSpan="7" className="text-center py-3">
                         No products found.

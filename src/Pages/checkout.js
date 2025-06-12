@@ -22,7 +22,7 @@ const Checkout = () => {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getCartTotal());
-  }, [cart]);
+  }, [dispatch]);
 
   const form = useForm({
     mode:"all",

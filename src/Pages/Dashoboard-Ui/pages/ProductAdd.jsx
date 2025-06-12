@@ -19,6 +19,7 @@ const ProductAdd = () => {
      
 
      const form = useForm({
+           mode:"all",
           defaultValues:{
                product_id:"",
                product_name:"",
@@ -241,7 +242,7 @@ const onSubmit = async (data) => {
                                              name="product_qty"
                                              placeholder="Product Quantity"
                                              className="form-control input-md"
-                                             type="text"
+                                             type="number"
                                              {...register("product_qty",
                                                   {
                                                        required:"Please enter product Qunatity"
@@ -263,7 +264,8 @@ const onSubmit = async (data) => {
                                              type="text"
                                               {...register("product_price",
                                                   {
-                                                       required:"Please enter product Price"
+                                                       required:"Please enter product Price",
+                                                       pattern:{value:/^[0-9]/,message:"Price should be only number"}
                                                   }
                                              )}
                                         />
@@ -277,12 +279,13 @@ const onSubmit = async (data) => {
                                         <input
                                              id="discount_price"
                                              name="product_price"
-                                             placeholder="Product Price"
+                                             placeholder="Discount Price"
                                              className="form-control input-md"
                                              type="text"
                                               {...register("discount_price",
                                                   {
-                                                       required:"Please enter product Price"
+                                                       required:"Please enter product Price",
+                                                       pattern:{value:/^[0-9]/,message:"Price should be only number"}
                                                   }
                                              )}
                                         />

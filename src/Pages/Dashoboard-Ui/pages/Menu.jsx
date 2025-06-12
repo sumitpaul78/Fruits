@@ -134,18 +134,11 @@ const Menu = () => {
               <div className="collapse" id="sidebarInventory">
                 <ul className="nav sub-navbar-nav">
                   <li className="sub-nav-item">
-                    <a className="sub-nav-link" href="inventory-warehouse.html">
-                      Warehouse
-                    </a>
+                    <Link className="sub-nav-link" to="/dashboard/inventory">
+                      Warehouse Product
+                    </Link>
                   </li>
-                  <li className="sub-nav-item">
-                    <a
-                      className="sub-nav-link"
-                      href="inventory-received-orders.html"
-                    >
-                      Received Orders
-                    </a>
-                  </li>
+                 
                 </ul>
               </div>
             </li>

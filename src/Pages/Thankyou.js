@@ -1,37 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { fireDB } from '../firebase/FirebaseConfig';
-import toast from 'react-hot-toast';
 import { useParams } from 'react-router-dom';
-
+import { fetchOrders } from '../features/orderSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Thankyou = () => {
-const [order, setOrder] = useState(null);
-    const {orderId } = useParams();
+const dispatch = useDispatch();
+const order = useSelector((state) => state.orderlist.items)
+const {orderId } = useParams();
     
-        const fetchOrders = async () => {
-           try {
-      const q = query(
-        collection(fireDB, "order_details"),
-        where("orderID", "==", Number(orderId))
-      );
-      const querySnapshot = await getDocs(q);
+const currentOrder = order.find(item => item.orderID === Number(orderId));
 
-      if (!querySnapshot.empty) {
-        const docSnap = querySnapshot.docs[0];
-        setOrder({ id: docSnap.id, ...docSnap.data() });
-      } else {
-        toast.error("Order not found.");
-      }
-    }catch (error) {
-            console.error("Error fetching orders:", error);
-            toast.error("Failed to fetch orders.");
-          }
-        };
-     useEffect(() => {
-       fetchOrders();
-      }, [orderId]);
-            
+useEffect(() => {
+       dispatch(fetchOrders());
+ }, [dispatch]);
+       
+ 
 
   return (
     <>
@@ -53,7 +36,7 @@ const [order, setOrder] = useState(null);
               </tr>
             </thead>
             <tbody>
-             {order && order.cart.map((item, index) => (
+             {currentOrder && currentOrder.cart.map((item, index) => (
                   <tr key={index}>
                     <td>
                       <img
